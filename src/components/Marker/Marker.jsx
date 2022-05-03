@@ -46,7 +46,6 @@ const Marker = ({ lat, lon, onMouseEnter, onMouseLeave }) => {
       },
     },
   }
-  console.log('Hovered: ', hovered)
   return (
     <group>
       <mesh

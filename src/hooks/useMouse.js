@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef } from 'react'
 
 const useMouse = () => {
-  const [position, setPosition] = useState({ x: 0, y: 0 })
+  // No need to update state
+  const position = useRef({ x: 0, y: 0 })
 
-  const onMouseMove = (e) => setPosition({ x: e.clientX, y: e.clientY })
+  const onMouseMove = (e) => (position.current = { x: e.clientX, y: e.clientY })
 
   useEffect(() => {
     document.addEventListener('mousemove', onMouseMove, false)
@@ -13,7 +14,7 @@ const useMouse = () => {
   }, [])
 
   return {
-    position,
+    position: position.current,
   }
 }
 
