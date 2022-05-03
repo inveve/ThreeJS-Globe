@@ -4,7 +4,7 @@ import { Color } from 'three'
 const wave = {
   uniforms: {
     uTime: { value: 1.0 },
-    uColor: { value: new Color('purple') },
+    uColor: { value: new Color('hsl(190,60%,40%)') },
   },
   transparent: true,
   vertexShader: `

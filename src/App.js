@@ -4,33 +4,31 @@ import { OrbitControls, Html } from '@react-three/drei'
 import GlobalStyle from './globalStyles'
 import React, { Fragment, Suspense, useRef, useState } from 'react'
 import useMouse from './hooks/useMouse'
-import Earth from './components/Earth'
-import Line from './components/Line'
-
-import BallPoint from './components/BallPoint'
-import Wave from './components/Wave'
-
-import EarthOverlay from './components/EarthOverlay'
-import EarthAtmos from './components/EarthAtmos'
+import Arc, { ArcPoint } from './components/Arc'
+import Globe, { GlobeAtmosphere, GlobeMap } from './components/Globe'
 import feed from './data/feed.json'
-
+import Card from './components/Card/Card'
 import Marker from './components/Marker'
-import Tower from './components/Tower'
-import DatGui from './components/DatGui'
+import getFormattedTime from './lib/getFormattedTime'
+
 const CanvasContainer = styled.div`
   height: 100vh;
 `
 
+const HTMLScene = () => {
+  return <></>
+}
 const Scene = () => {
   const groupRef = useRef(null)
 
-  const [marker, setMarker] = useState(null)
+  const [card, setCard] = useState(null)
   const [lineHovered, setLineHovered] = useState(false)
   const { position } = useMouse()
+
   useFrame(() => {
-    /*    groupRef.current.rotation.y -= 0.0005
+    groupRef.current.rotation.y -= 0.0005
     groupRef.current.rotation.x = -0.4
-    groupRef.current.rotation.z = 0.1 */
+    groupRef.current.rotation.z = 0.1
   })
 
   const handleHover = (index) => {
@@ -39,13 +37,11 @@ const Scene = () => {
       return
     }
     const { pr, uml, uol, l, nwo, ma } = feed[index]
-    setMarker({
-      prNumber: pr,
-      title: nwo,
-      language: l,
-      repoLocation: uml,
-      mergedFrom: uol,
-      mergedTimestamp: ma,
+    const time = getFormattedTime(ma)
+
+    setCard({
+      title: `#${pr} ${nwo}`,
+      description: `${l}, Opened in ${uml}, merged ${time} in ${uol}`,
     })
     setLineHovered(true)
   }
@@ -56,21 +52,19 @@ const Scene = () => {
     <group ref={groupRef}>
       {lineHovered && (
         <Html calculatePosition={calculateMousePosition}>
-          <Marker {...marker} />
+          <Card {...card} />
         </Html>
       )}
-      <EarthOverlay />
-      <EarthAtmos />
-      <Earth />
+      <GlobeAtmosphere />
+      <GlobeMap />
+      <Globe />
       {feed.slice(0, 10).map(({ gm, gop, uml, uol }, index) => {
         return (
           <Fragment key={index}>
             {uml !== uol ? (
               <>
-                <BallPoint {...gm} />
-                <Wave {...gop} />
-                <BallPoint {...gop} />
-                <Line
+                <ArcPoint {...gop} />
+                <Arc
                   from={[gm.lat, gm.lon]}
                   to={[gop.lat, gop.lon]}
                   onMouseEnter={() => handleHover(index)}
@@ -78,13 +72,15 @@ const Scene = () => {
                 />
               </>
             ) : (
-              <Tower {...gm} />
+              <Marker
+                {...gm}
+                onMouseEnter={() => handleHover(index)}
+                onMouseLeave={() => handleHover(false)}
+              />
             )}
           </Fragment>
         )
       })}
-
-      <axesHelper args={[1000]} />
     </group>
   )
 }
@@ -99,15 +95,15 @@ function App() {
           dpr={[1, 2]}
           camera={{ fov: 20, position: [4.6, 1.9, 2.4] }}
         >
-          <DatGui />
           <spotLight
-            intensity={0.01}
+            intensity={0.4}
             angle={0.5}
             penumbra={1}
             position={[5, 13, 12]}
           />
-          <ambientLight intensity={0.005} />
+          <ambientLight intensity={0.12} />
           <Suspense fallback={null}>
+            <HTMLScene />
             <Scene />
           </Suspense>
           <OrbitControls />

@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react'
-import calcPosFromLatLonRad from '../lib/calcPosFromLatLonRad'
+import calcPosFromLatLonRad from '../../lib/calcPosFromLatLonRad'
 import { useRef } from 'react'
 import { Vector3 } from 'three'
-import wave from '../shaders/wave'
+import wave from '../../shaders/wave'
 import { useFrame } from '@react-three/fiber'
 
-const Wave = ({ lat, lon }) => {
+const ArcWave = ({ lat, lon }) => {
   const coordinates = calcPosFromLatLonRad(lat, lon, 1)
   const ref = useRef(null)
   const shaderRef = useRef(null)
@@ -27,4 +27,4 @@ const Wave = ({ lat, lon }) => {
     </>
   )
 }
-export default Wave
+export default ArcWave
