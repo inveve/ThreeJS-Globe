@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import React, { Suspense, useCallback, useRef, useState } from 'react'
+import React, { Suspense, useCallback, useRef } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, Html } from '@react-three/drei'
 import LineContainer from './containers/Line'
@@ -11,6 +11,7 @@ import formatPullRequest from './lib/formatPullRequest'
 import pullRequestData from './data/feed.json'
 import GlobalStyle from './globalStyles'
 import useModalStore from './store/modal'
+import useGetPullRequest from './hooks/useGetPullRequest'
 
 const CanvasContainer = styled.div`
   height: 100vh;
@@ -51,25 +52,28 @@ const Scene = () => {
     globeRef.current.rotation.z = 0.1
   })
 
+  const { current, offset } = useGetPullRequest()
+
   return (
     <group ref={globeRef}>
       <GlobeAtmosphere />
       <GlobeMap />
       <Globe />
 
-      {pullRequestData.slice(0, 10).map((pullRequest, index) => {
+      {pullRequestData.slice(offset, current).map((pullRequest, index) => {
+        const offsetIndex = index + offset
         const componentProps = {
           ...pullRequest,
           lat: pullRequest.gm.lat,
           lon: pullRequest.gm.lon,
-          onMouseEnter: () => toggleModal(index),
-          onMouseLeave: () => toggleModal(index),
+          onMouseEnter: () => toggleModal(offsetIndex),
+          onMouseLeave: () => toggleModal(offsetIndex),
         }
         // Position from -> to is not the same
         return pullRequest.uml !== pullRequest.uol ? (
-          <LineContainer {...componentProps} key={index} />
+          <LineContainer {...componentProps} key={offsetIndex} />
         ) : (
-          <Marker {...componentProps} key={index} />
+          <Marker {...componentProps} key={offsetIndex} />
         )
       })}
     </group>
