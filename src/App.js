@@ -46,14 +46,13 @@ const Scene = () => {
   const toggleModal = useModalStore((state) => state.toggleOpen)
 
   // Rotate Globe
-  useFrame(() => {
+  /*   useFrame(() => {
     globeRef.current.rotation.y -= 0.0005
     globeRef.current.rotation.x = -0.4
     globeRef.current.rotation.z = 0.1
-  })
+  }) */
 
   const { current, offset } = useGetPullRequest()
-
   return (
     <group ref={globeRef}>
       <GlobeAtmosphere />
@@ -61,6 +60,7 @@ const Scene = () => {
       <Globe />
 
       {pullRequestData.slice(offset, current).map((pullRequest, index) => {
+        console.log(pullRequest)
         const offsetIndex = index + offset
         const componentProps = {
           ...pullRequest,
@@ -71,9 +71,9 @@ const Scene = () => {
         }
         // Position from -> to is not the same
         return pullRequest.uml !== pullRequest.uol ? (
-          <LineContainer {...componentProps} key={offsetIndex} />
+          <LineContainer {...componentProps} key={pullRequest.pr} />
         ) : (
-          <Marker {...componentProps} key={offsetIndex} />
+          <Marker {...componentProps} key={pullRequest.pr} />
         )
       })}
     </group>

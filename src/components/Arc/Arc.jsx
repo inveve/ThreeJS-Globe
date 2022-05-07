@@ -1,59 +1,69 @@
-import * as THREE from 'three'
-import React, { useRef, forwardRef, useState } from 'react'
-import { useFrame } from '@react-three/fiber'
-import { Line as DreiLine } from '@react-three/drei'
-import calcPosFromLatLonRad from '../../lib/calcPosFromLatLonRad'
+import React, { useRef, forwardRef, useState, useEffect } from 'react'
 import { Color } from 'three'
-import getLineCurve from '../../lib/getLineCurve'
+import { Line as DreiLine } from '@react-three/drei'
+import ArcPoint from './ArcPoint'
+import ArcWave from './ArcWave'
+const Arc = forwardRef(({ onMouseEnter, onMouseLeave, curve, target }, ref) => {
+  const lineRef = useRef(null)
+  const [hovered, setHovered] = useState(false)
+  const [arrived, setArrived] = useState(false)
+  const animation = useRef({
+    ticksTo: 3,
+    ticksFrom: 0,
+    maxTicks: 400,
+  })
 
-const Arc = forwardRef(
-  ({ from = [], to = [], onMouseEnter, onMouseLeave }, ref) => {
-    const line = {
-      from: new THREE.Vector3(...calcPosFromLatLonRad(from[0], from[1], 1)),
-      to: new THREE.Vector3(...calcPosFromLatLonRad(to[0], to[1], 1)),
-    }
+  /**
+   * @FixMe Hack:
+   * UseFrame does not renders the curve properly if modifying the geometry points
+   */
+  useEffect(() => {
+    const updated = setInterval(() => {
+      const { ticksTo, maxTicks, ticksFrom } = animation.current
+      animation.current.ticksTo = ticksTo + 3
+      if (ticksTo > curve.length && !arrived) setArrived(true)
+      if (ticksTo > maxTicks) animation.current.ticksFrom = ticksFrom + 3
 
-    const curve = getLineCurve(line.from, line.to)
-    const lineRef = useRef()
+      if (ticksFrom > curve.length - 3) {
+        setArrived(false)
+        clearInterval(updated)
+        return
+      }
+      lineRef.current.geometry.setPositions(curve.slice(ticksFrom, ticksTo))
+    }, 25)
+    return () => clearInterval(updated)
+  }, [arrived, curve])
 
-    useFrame((_, delta) => {
-      lineRef.current.children.forEach(
-        (line) => (line.material.uniforms.dashOffset.value -= delta * 1)
-      )
-    })
-    const [hovered, setHovered] = useState(false)
-
-    const onLineHover = () => {
-      setHovered(true)
-      document.body.style.cursor = 'pointer'
-      onMouseEnter()
-    }
-    const onHoverLeave = () => {
-      onMouseLeave()
-      document.body.style.cursor = ''
-      setHovered(false)
-    }
-    return (
-      <group>
-        <mesh
-          ref={lineRef}
-          onPointerOver={onLineHover}
-          onPointerLeave={onHoverLeave}
-        >
-          <DreiLine
-            points={curve.points}
-            color={
-              !hovered ? new Color('hsl(190,80%,40%)') : new Color('white')
-            }
-            opacity={0.9}
-            lineWidth={1.25}
-            transparent={true}
-            dashed
-          />
-        </mesh>
-      </group>
-    )
+  const onLineHover = () => {
+    setHovered(true)
+    document.body.style.cursor = 'pointer'
+    onMouseEnter()
   }
-)
+  const onHoverLeave = () => {
+    onMouseLeave()
+    document.body.style.cursor = ''
+    setHovered(false)
+  }
+  return (
+    <group ref={ref}>
+      <DreiLine
+        ref={lineRef}
+        onPointerOver={onLineHover}
+        onPointerLeave={onHoverLeave}
+        points={curve}
+        color={!hovered ? new Color('hsl(190,80%,40%)') : new Color('white')}
+        opacity={0.9}
+        lineWidth={1.25}
+        transparent={true}
+      />
+      {arrived && (
+        <>
+          <ArcPoint {...target} />
+          <ArcWave {...target} />
+        </>
+      )}
+    </group>
+  )
+})
 
 export default Arc
