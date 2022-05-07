@@ -1,67 +1,55 @@
 import { useFrame } from '@react-three/fiber'
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useEffect } from 'react'
 import { Vector3 } from 'three'
-import tower from '../../shaders/tower'
-
+import marker from '../../shaders/marker'
 import calcPosFromLatLonRad from '../../lib/calcPosFromLatLonRad'
-import { Color } from 'three'
-import { cloneDeep } from 'lodash'
 
+/**
+ * A Marker Component, represents a box shape geometry with a dot on top
+ */
 const Marker = ({ lat, lon, onMouseEnter, onMouseLeave }) => {
-  const ref = useRef(null)
-  const ref2 = useRef(null)
-  const [hovered, setHovered] = useState(false)
-  const position = new Vector3(...calcPosFromLatLonRad(lat, lon, 1))
-  const position2 = new Vector3(...calcPosFromLatLonRad(lat, lon, 1.1))
+  const markerRef = useRef(null)
+  const dotRef = useRef(null)
+  const markerPosition = new Vector3(...calcPosFromLatLonRad(lat, lon, 1))
+  const dotPosition = new Vector3(...calcPosFromLatLonRad(lat, lon, 1.1))
 
   const onHover = () => {
-    setHovered(true)
     document.body.style.cursor = 'pointer'
     onMouseEnter()
   }
   const onHoverLeave = () => {
-    setHovered(false)
-    onMouseLeave()
     document.body.style.cursor = ''
+    onMouseLeave()
   }
 
   useEffect(() => {
-    ref.current.lookAt(new Vector3(0, 0, 0))
-    ref.current.rotateX(Math.PI / 2)
-    ref2.current.lookAt(new Vector3(0, 0, 0))
-    ref2.current.rotateX(Math.PI / 2)
+    markerRef.current.lookAt(new Vector3(0, 0, 0))
+    markerRef.current.rotateX(Math.PI / 2)
+    dotRef.current.lookAt(new Vector3(0, 0, 0))
+    dotRef.current.rotateX(Math.PI / 2)
   }, [])
 
   useFrame(({ clock }) => {
-    ref.current.material.uniforms.uTime.value = clock.getElapsedTime()
-    ref.current.scale.y = Math.sin(clock.getElapsedTime() * 0.5)
+    markerRef.current.material.uniforms.uTime.value = clock.getElapsedTime()
+    markerRef.current.scale.y = Math.sin(clock.getElapsedTime() * 0.5)
   })
 
-  const newShader = {
-    ...cloneDeep(tower),
-    uniforms: {
-      uTime: { value: 1.0 },
-      uColor: {
-        value: hovered ? new Color(1.0, 1.0, 1.0) : new Color(0.0, 1.0, 0.5),
-      },
-    },
-  }
   return (
-    <group>
+    <>
       <mesh
-        position={position}
-        ref={ref}
+        position={markerPosition}
+        ref={markerRef}
         onPointerOver={onHover}
         onPointerLeave={onHoverLeave}
       >
         <boxGeometry args={[0.008, 0.18, 0.008]} />
-        <shaderMaterial {...newShader} />
+        <shaderMaterial {...marker} />
       </mesh>
-      <mesh position={position2} ref={ref2}>
+      <mesh position={dotPosition} ref={dotRef}>
         <boxGeometry args={[0.006, 0.006, 0.006]} />
         <meshBasicMaterial color={'white'} />
       </mesh>
-    </group>
+    </>
   )
 }
 export default Marker

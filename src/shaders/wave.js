@@ -1,16 +1,14 @@
 import { BackSide } from 'three'
-import { Color } from 'three'
-
+import { darkBlue } from '../lib/constants/color'
 const wave = {
   uniforms: {
     uTime: { value: 1.0 },
-    uColor: { value: new Color('hsl(190,60%,40%)') },
+    uColor: { value: darkBlue },
   },
   transparent: true,
   vertexShader: `
   varying vec2 vUv;
-  void main()
-  {
+  void main() {
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
     vUv = uv;
   }
@@ -22,11 +20,10 @@ const wave = {
   uniform float uTime;
   void main() {
 
-    float alpha = 1.0;
     float vRadius = tan(uTime);
     float strength = step(0.015, abs(distance(vUv, vec2(0.5)) - vRadius  / 2.5));
     
-    alpha = 1.0 - tan(uTime);
+    float alpha = 1.0 - tan(uTime);
     if (strength == 1.0) alpha = 0.0;
     gl_FragColor = vec4(uColor, alpha);
   }

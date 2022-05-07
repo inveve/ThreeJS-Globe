@@ -13,9 +13,6 @@ const GlobeMap = () => {
           visibility: {
             value: alpha,
           },
-          shift: {
-            value: 0,
-          },
           size: {
             value: 0.15,
           },

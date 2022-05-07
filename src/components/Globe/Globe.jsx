@@ -1,17 +1,14 @@
 import { React } from 'react'
-import useStore from '../../store/colors'
-
+import { green } from '../../lib/constants/color'
 /**
  * Renders the globe
  * This component is only a colored sphere
  */
 const Globe = () => {
-  const { color } = useStore((state) => state.params.globe)
-
   return (
     <mesh>
       <sphereBufferGeometry args={[1, 400, 400]} />
-      <meshPhysicalMaterial color={color} />
+      <meshPhysicalMaterial color={green} />
     </mesh>
   )
 }

@@ -1,6 +1,6 @@
 import { Color } from 'three'
 
-const tower = {
+const marker = {
   uniforms: {
     uTime: { value: 1.0 },
     uColor: { value: new Color(0.0, 1.0, 0.5) },
@@ -26,4 +26,4 @@ const tower = {
   `,
 }
 
-export default tower
+export default marker

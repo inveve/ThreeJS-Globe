@@ -1,21 +1,18 @@
 import { React } from 'react'
-import useStore from '../../store/colors'
-import shader from '../../shaders/Halo'
-
+import shader from '../../shaders/halo'
+import { darkGreen } from '../../lib/constants/color'
 /**
  * Renders the globe Atmosphere
  * This is an underlay for the globe, simulates a glowing effect
  */
 const GlobeAtmosphere = () => {
-  const { haloInner, haloOuter } = useStore((state) => state.params.globe)
   return (
     <mesh>
       <sphereBufferGeometry args={[1.1, 400, 400]} />
       <shaderMaterial
         {...shader}
         uniforms={{
-          uColorInner: { value: haloInner },
-          uColorOuter: { value: haloOuter },
+          uColor: { value: darkGreen },
         }}
       />
     </mesh>
