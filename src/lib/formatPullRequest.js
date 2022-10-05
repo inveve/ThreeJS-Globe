@@ -9,9 +9,9 @@ import getFormattedTime from './getFormattedTime'
  */
 const formatPullRequestData = ({ pr, uml, uol, l, nwo, ma }) => ({
   title: `#${pr} ${nwo}`,
-  description: `${l}, Opened in ${uml}, merged ${getFormattedTime(
+  description: `${l}, Lives in ${uml}, Joined ${getFormattedTime(
     ma
-  )} in ${uol}`,
+  )} from ${uol}`,
 })
 
 export default formatPullRequestData
