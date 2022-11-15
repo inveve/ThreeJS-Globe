@@ -1,4 +1,5 @@
 import { VertexColors } from 'three'
+
 const GlobeMap = {
   vertexColors: VertexColors,
   transparent: true,

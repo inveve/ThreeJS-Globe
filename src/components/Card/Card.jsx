@@ -35,6 +35,7 @@ const Card = ({ title, description }) => {
       <div>
         <Heading>{title}</Heading>
         <Description>{description}</Description>
+        <img src="/dorf_logo_nyc_2.png" />
       </div>
     </StyledCard>
   )
